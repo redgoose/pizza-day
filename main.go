@@ -24,14 +24,13 @@ func execute() {
 
 	var roomInfo = make(map[string]config.Room)
 	var roomNumbers = []string{}
+	var roomCodes = []string{}
 
 	for _, room := range conf.Rooms {
-		roomCodes := strings.Split(room.Code, "|")
-		for _, roomCode := range roomCodes {
-			roomInfo[roomCode] = room
-		}
+		roomInfo[room.Code] = room
 
 		roomNumbers = append(roomNumbers, room.Room)
+		roomCodes = append(roomCodes, room.Code)
 	}
 
 	sort.Strings(roomNumbers)
@@ -48,11 +47,17 @@ func execute() {
 	for _, row := range processedRows {
 		// fmt.Println(row)
 
-		// verify room code exists in config
+		// verify room code exists in room code list
+		roomCodeFound := false
 		roomCode := ""
-		if _, ok := roomInfo[row[3]]; ok {
-			roomCode = row[3]
-		} else {
+		for _, rc := range roomCodes {
+			if strings.Contains(row[3], rc) {
+				roomCodeFound = true
+				roomCode = rc
+				break
+			}
+		}
+		if !roomCodeFound {
 			panic(fmt.Errorf("unexpected room code: %s", row[3]))
 		}
 
